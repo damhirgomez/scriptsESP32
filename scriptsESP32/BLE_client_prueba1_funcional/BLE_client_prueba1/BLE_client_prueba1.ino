@@ -63,7 +63,37 @@ bool connectToServer() {
       Serial.print("Failed to find our service UUID: ");
       Serial.println(serviceUUID.toString().c_str());
       pClient->disconnect();
-      return false;
+      #include <vector>
+
+      std::vector<BLEAdvertisedDevice*> devices;
+
+      class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
+        void onResult(BLEAdvertisedDevice advertisedDevice) {
+          Serial.print("BLE Advertised Device found: ");
+          Serial.println(advertisedDevice.toString().c_str());
+
+          // We have found a device, let us now see if it contains the service we are looking for.
+          if (advertisedDevice.haveServiceUUID() && advertisedDevice.getServiceUUID().equals(serviceUUID)) {
+            devices.push_back(new BLEAdvertisedDevice(advertisedDevice));
+          }
+        }
+      };
+
+      void scanForDevices() {
+        BLEScan* pBLEScan = BLEDevice::getScan();
+        pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
+        pBLEScan->setInterval(100);
+        pBLEScan->setWindow(99);  // less or equal setInterval value
+        pBLEScan->setActiveScan(true);
+        while (true) {
+          BLEScanResults foundDevices = pBLEScan->start(5, false);
+          Serial.print("Found ");
+          Serial.print(foundDevices.getCount());
+          Serial.println(" devices");
+          pBLEScan->clearResults();   // delete results fromBLEScan buffer to release memory
+          delay(1000);
+        }
+      }
     }
     Serial.println(" - Found our service");
 

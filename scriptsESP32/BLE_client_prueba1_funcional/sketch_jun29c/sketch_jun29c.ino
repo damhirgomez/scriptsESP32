@@ -38,35 +38,44 @@ void loop() {
   int selectedDevices[50];
   int selectedCount = 0;
   char* token = strtok((char*)input.c_str(), ",");
-  
   while (token != NULL) {
     int deviceNumber = atoi(token);
+    Serial.printf("device numer %d:",deviceNumber);
     Serial.println(deviceNumber);
-    if (deviceNumber >= 0 && deviceNumber <= deviceCount) {
+    if (deviceNumber >= 0 && deviceNumber < deviceCount) {
       selectedDevices[selectedCount] = deviceNumber;
-        Serial.print(devices[deviceNumber].toString().c_str());
-      Serial.print(", ");
       selectedCount++;
-      
+      Serial.print(devices[deviceNumber].toString().c_str());
+      Serial.print(", ");
     }
     token = strtok(NULL, ",");
   }
   
   // Connect to selected devices and read data
   for (int i = 0; i < selectedCount; i++) {
-    Serial.println(selectedDevices[i]);
-    Serial.println(selectedCount);
     BLEAdvertisedDevice device = devices[selectedDevices[i]];
-  
     BLEClient* pClient = BLEDevice::createClient();
     BLEAddress address = device.getAddress();
-    Serial.println(selectedDevices[i]);
     pClient->connect(address);
-    Serial.println("Connected to device");
+    if (pClient->isConnected()) {
+      Serial.println("Connected to device");
+    } else {
+      Serial.println("Failed to connect to device");
+    }
     BLERemoteService* pRemoteService = pClient->getService(device.getServiceUUID());
-    BLERemoteCharacteristic* pCharacteristic = pRemoteService->getCharacteristic(pRemoteService->getUUID());
+    if (pRemoteService == nullptr) {
+      Serial.print("Failed to find our service UUID: ");
+      Serial.println(device.getServiceUUID().toString().c_str());
+      pClient->disconnect();
+    }
+    BLERemoteCharacteristic* pCharacteristic = pRemoteService->getCharacteristic("ABF0E002-B597-4BE0-B869-6054B7ED0CE3");
+    if (pCharacteristic == nullptr) {
+      Serial.print("Failed to find our characteristic UUID: ");
+      Serial.println(pRemoteService->getUUID().toString().c_str());
+      pClient->disconnect();
+    }
     std::string value = pCharacteristic->readValue();
-    Serial.printf("Data from device %d: %s\n", selectedDevices[i]+1, value.c_str());
+    Serial.printf("Data from device %d:\n", value);
     pClient->disconnect();
     delete pClient;
   }

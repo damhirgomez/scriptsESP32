@@ -22,7 +22,7 @@ int fsrReading3;
 
 // BLE Variables
 // Physical Activity Monitor: 0x183E
-BLEService imu_service("ABF0E000-B597-4BE0-B869-6054B7ED0CE3");
+BLEService imu_service("ABF0E000-B597-4BE0-B869-6054B7ED0CE4");
 // ACC
 // acceleration unit = m/s**2
 BLEByteCharacteristic acc_unit_characteristic("2713", BLERead);
@@ -73,8 +73,8 @@ void setup()
     };
   }
 
-  BLE.setDeviceName("ProxSIMityGlove002");
-  BLE.setLocalName("ProxSIMityGlove002");
+  BLE.setDeviceName("ProxSIMityGlove003");
+  BLE.setLocalName("ProxSIMityGlove003");
   BLE.setAdvertisedService(imu_service);
 
 
