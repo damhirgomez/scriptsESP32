@@ -18,17 +18,17 @@ int fsrPin3 = 5;
 int fsrReading;     // the analog reading from the FSR resistor divider
 int fsrReading2;
 int fsrReading3;
-
+String nombreBle;
 
 // BLE Variables
 // Physical Activity Monitor: 0x183E
-BLEService imu_service("ABF0E000-B597-4BE0-B869-6054B7ED0CE4");
+BLEService imu_service("ABF0E000-B597-4BE0-B869-6054B7ED0CE1");
 // ACC
 // acceleration unit = m/s**2
 BLEByteCharacteristic acc_unit_characteristic("2713", BLERead);
 // xiaoble is 32bit chip: 64bit,4 byte
 
-BLEStringCharacteristic acc_x_characteristic("ABF0E002-B597-4BE0-B869-6054B7ED0CE3", BLERead | BLENotify,60);
+BLEStringCharacteristic acc_x_characteristic("ABF0E001-B597-4BE0-B869-6054B7ED0CE1", BLERead | BLENotify,60);
 BLEDescriptor acc_x_descriptor("2901", "accX");
 
 
@@ -72,9 +72,9 @@ void setup()
       delay(500);
     };
   }
-
-  BLE.setDeviceName("ProxSIMityGlove003");
-  BLE.setLocalName("ProxSIMityGlove003");
+  nombreBle ="PG001";
+  BLE.setDeviceName("ProxSIMityGlove001");
+  BLE.setLocalName("ProxSIMityGlove001");
   BLE.setAdvertisedService(imu_service);
 
 
@@ -163,6 +163,14 @@ void loop()
         ValueFinal.concat(Coma);
         ValueFinal.concat(buttonState);
         ValueFinal.concat(Coma);
+        ValueFinal.concat("1");
+        ValueFinal.concat(Coma);
+        ValueFinal.concat("2");
+        ValueFinal.concat(Coma);
+        ValueFinal.concat("3");
+        ValueFinal.concat(Coma);
+        ValueFinal.concat(nombreBle);
+        
         
         //const unsigned char dataValue = stringToBytes(ValueFinal);
         acc_x_characteristic.writeValue(ValueFinal);
